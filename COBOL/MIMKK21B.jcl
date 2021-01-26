@@ -1,0 +1,16 @@
+//RESTFILE JOB 1,'UW',REGION=0M,NOTIFY=&SYSUID
+//*
+//CICSPROC JCLLIB ORDER=(KC03H73.CICSLABS.PROCLIB)
+//*
+//*********************************************************************
+//*           TRANSLATE COMPILE
+//*           AND LINK A CICS COBOL PROGRAM
+//*********************************************************************
+//COMPLI   EXEC DFHYITVL,PROGLIB='KC03H73.CICSLABS.LOADLIB',
+//   INDEX='DFH540.CICS',
+//   REG='4M',DSCTLIB='KC03H73.CICSLABS.COPYBOOK',
+//   PARM.COB='RENT,APOST,OBJECT,NODYNAM,LIB,SIZE(1048376)'
+//TRN.SYSIN  DD DISP=SHR,DSN=KC03H71.CICSLABS.JCL(MIMKK21V)
+/*
+//LKED.SYSIN DD *
+      NAME MIMKK21V(R)

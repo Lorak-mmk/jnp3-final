@@ -27,16 +27,16 @@ import com.ibm.cics.server.CicsConditionException;
 import com.ibm.cics.server.Container;
 import com.ibm.cics.server.Program;
 import com.ibm.cics.server.Task;
-import com.ibm.cicsdev.restapp.bean.ReverseResult;
+import com.ibm.cicsdev.restapp.bean.ShowPollResult;
 
 
 /**
  * RESTful web application that links to the CICS COBOL program EDUCHAN
  * and returns a reversed input string. 
  */
-@Path("reverse")
+@Path("makepoll")
 @Produces(MediaType.APPLICATION_JSON)
-public class ReverseResource {
+public class MakePoll {
 
     /**
      * Formatting string used to produce an ISO-8601 standard timestamp.
@@ -46,12 +46,12 @@ public class ReverseResource {
     /**
      * Default string to reverse.
      */
-    private static final String DEFAULT_STRING = "Hello from Java! abrakadabra";
+    private static final String DEFAULT_STRING = "00001";
 
     /**
      * Name of the CICS program the {@link #reverse(String)} method will LINK to.
      */
-    private static final String PROGRAM_NAME = "EDUCHAN";
+    private static final String PROGRAM_NAME = "MIMKK21S";
 
     /**
      * Name of the channel to create. Must be 16 characters or less.
@@ -75,7 +75,7 @@ public class ReverseResource {
      * @return - JAXB bean ReverseResult with input, output and time
      */
     @GET
-    public ReverseResult reverseNoArgs() {
+    public ShowPollResult reverseNoArgs() {
         return reverse(DEFAULT_STRING);
     }
 
@@ -89,7 +89,7 @@ public class ReverseResource {
      */
     @GET
     @Path("/{text}")
-    public ReverseResult reverse(@PathParam("text") String inputStr) {
+    public ShowPollResult reverse(@PathParam("text") String inputStr) {
         
         // Variable declarations
         Channel chan;
@@ -211,7 +211,7 @@ public class ReverseResource {
         }
 
         // Create the result bean
-        ReverseResult result = new ReverseResult();
+        ShowPollResult result = new ShowPollResult();
 
         // Populate with the original string
         result.setOriginalText(inputStr);

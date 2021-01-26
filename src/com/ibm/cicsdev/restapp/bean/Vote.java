@@ -17,7 +17,7 @@ import javax.xml.bind.annotation.XmlType;
 
 @XmlAccessorType(XmlAccessType.NONE)
 @XmlType(name = "linkResult")
-public class ReverseResult {
+public class Vote {
     
     @XmlElement(name = "time")
     protected String time;
