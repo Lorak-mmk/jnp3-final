@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simplepoll</title>
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.8.2/css/bulma.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/css/all.min.css" integrity="sha512-HK5fgLBL+xu6dm/Ii3z4xhlSUyZgTT9tuc/hSrtw6uzJOvgRr2a9jyxxT1ely+B+xFAmJKVSTbpM/CuL7qxO8w==" crossorigin="anonymous" />
+</head>
+<body>
+    <div id="content-wrapper">
+        <div id="content-wrapper-body">
+            <header class="container">
+                <nav class='navbar' role='navigation'>
+                    <div class='navbar-brand'>
+                        <a class="navbar-item" href='index.html'>
+                            <span class='title is-1'> SIMPLEPOLL </span>
+                        </a>
+                        <a role="button" class="navbar-burger burger" aria-label="menu" aria-expanded="false" data-target="navbarBasicExample">
+                            <span aria-hidden="true"></span>
+                            <span aria-hidden="true"></span>
+                            <span aria-hidden="true"></span>
+                        </a>
+                    </div>
+                </nav>
+            </header>
+            <main class="section container">
+                <div class="columns is-centered">
+                    <div class="column is-one-quarter is-hidden-touch">
+
+                    </div>
+                    <div class="column">
+                        <div class="box">
+                            <div class="columns">
+                                <div class="column is-11">
+                                    <p class="title is-4" id="question_text">Pytanie</p>
+                                </div>
+                                <div class="column is-1">
+                                    <div class="is-pulled-right">
+                                        <button class="button" id="results_button">Wyniki</button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div id="answers_container">
+
+                            </div>
+                        </div>
+                    </div>
+                    <div class="column is-one-quarter is-hidden-touch">
+                        
+                    </div>
+                </div>
+            </main>
+            <!-- Store for elements to copy -->
+            <div style="display:none">
+                <div class="field is-horizontal" id="answer_template">
+                    <div class="field-label">
+                    <button class="button is-primary">Zagłosuj</button>
+                    </div>
+                    <div class="field-body">
+                    <div class="field">
+                        <div class="control">
+                            <input type="text" class="input is-static" value="sadasasdas" readonly>
+                        </div>
+                    </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <footer class="section footer container is-fixed-bottom">
+            <div class="has-text-centered content">
+                Autorzy projektu: Krzysztof Rolf i Karol Baryła. Użyto biblioteki <a href="https://bulma.io/">Bulma</a>. Strona powstała jako zadanie zaliczeniowe na przedmiot Języki i narzędzia programowania 3.
+            </div>
+        </footer>
+    </div>
+    <script>
+        
+
+        example_data = `{ "id": "sdasdasdasdas", "question": "Jakieś pytanie", "answers": [
+            ["Odpowiedź 1ssssssssssssssssssssfsdfsdfsdfsdfsdfyuisgfyugwesfuyawsbedfuibqwaduiavb", 34],
+            ["Odpowiedź 2", 56],
+            ["Odpowiedź 3", 12]
+        ]}`
+        
+        function fetch_poll() {
+        	const queryString = window.location.search;
+        	const urlParams = new URLSearchParams(queryString);
+        	if(urlParams.get('id')) {
+        		qid = urlParams.get('id');
+        		window.poll.id = qid;
+        		
+        		fetch(document.URL.substr(0,document.URL.lastIndexOf('/')) + "/rest/showpoll/" + qid)
+        			.then(resp => resp.json())
+        			.then(data => {
+        				if(data.result) {
+        					parse_poll(data.result);
+        				} else {
+        					alert('Error');
+        				}
+        			}).catch(e => alert('error ' + e));
+        	} else {
+        		window.location = "index.html";
+        	}
+        }
+        
+        function parse_poll(data) {
+        	window.poll.question = data.substr(0, 98);
+        	data = data.substr(98);
+        	window.poll.answers = [];
+        	while(data.length > 0) {
+        		window.poll.answers.push([data.substr(0, 90), data.substr(90, 4)]);
+        		data = data.substr(94);
+        	}
+        	
+        	prepare_poll();
+        }
+
+        function prepare_poll() {
+            // Fetch data from api here
+            
+            var ans_elem = document.getElementById("answer_template");
+            document.getElementById("results_button").onclick = () => see_results();
+
+            document.querySelector("#question_text").innerText = window.poll.question;
+            for (answer in window.poll.answers) {
+                var ans = ans_elem.cloneNode(true);
+                ans.id = "";
+                ans.children[1].children[0].children[0].children[0].value = poll.answers[answer][0];
+                ans.children[0].children[0].onclick = () => send_vote(answer + 1);
+                console.log(answer);
+                document.getElementById("answers_container").appendChild(ans);
+            }
+        }
+        
+        function send_vote(nr) {
+        	fetch(document.URL.substr(0,document.URL.lastIndexOf('/')) + "/rest/vote/" + window.poll.id + ":" + nr)
+        		.then(resp => resp.json())
+        		.then(data => {
+        			if(data.result != "") {
+        				alert('error?');
+        			} else {
+        				window.location = "results.html?id=" + window.poll.id;
+        			}
+        		}).catch(err => alert('error: ' + err));
+            alert("Send vote: " + nr);
+            //TODO:
+            see_results();
+        }
+
+        function see_results() {
+            window.location = "results.html?id=" + window.poll.id;
+        }
+
+        window.poll = {};
+        fetch_poll();
+
+    </script>
+</body>
+</html>

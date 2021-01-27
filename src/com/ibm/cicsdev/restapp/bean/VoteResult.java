@@ -17,49 +17,17 @@ import javax.xml.bind.annotation.XmlType;
 
 @XmlAccessorType(XmlAccessType.NONE)
 @XmlType(name = "linkResult")
-public class Vote {
-    
-    @XmlElement(name = "time")
-    protected String time;
+public class VoteResult {
 
-    @XmlElement(name = "original")
-    protected String originalText;
+    @XmlElement(name = "result")
+    protected String resultText;
 
-    @XmlElement(name = "reverse")
-    protected String reverseText;
 
-    @XmlElement(name = "truncated")
-    protected boolean truncated;
-
-    public boolean isTruncated() {
-        return truncated;
+    public String getResultText() {
+        return resultText;
     }
 
-    public void setTruncated(boolean truncated) {
-        this.truncated = truncated;
-    }
-
-    public String getTime() {
-        return time;
-    }
-
-    public void setTime(String time) {
-        this.time = time;
-    }
-
-    public String getOriginalText() {
-        return originalText;
-    }
-
-    public void setOriginalText(String originalText) {
-        this.originalText = originalText;
-    }
-
-    public String getReverseText() {
-        return reverseText;
-    }
-
-    public void setReverseText(String reverseText) {
-        this.reverseText = reverseText;
+    public void setResultText(String reverseText) {
+        this.resultText = reverseText;
     }
 }

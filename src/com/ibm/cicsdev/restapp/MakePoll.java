@@ -11,8 +11,6 @@
 package com.ibm.cicsdev.restapp;
 
 import java.text.MessageFormat;
-import java.util.Calendar;
-import java.util.TimeZone;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -27,7 +25,7 @@ import com.ibm.cics.server.CicsConditionException;
 import com.ibm.cics.server.Container;
 import com.ibm.cics.server.Program;
 import com.ibm.cics.server.Task;
-import com.ibm.cicsdev.restapp.bean.ShowPollResult;
+import com.ibm.cicsdev.restapp.bean.MakePollResult;
 
 
 /**
@@ -37,17 +35,6 @@ import com.ibm.cicsdev.restapp.bean.ShowPollResult;
 @Path("makepoll")
 @Produces(MediaType.APPLICATION_JSON)
 public class MakePoll {
-
-    /**
-     * Formatting string used to produce an ISO-8601 standard timestamp.
-     */
-    private static final String ISO8601_FORMAT = "%tFT%<tT.%<tLZ";
-
-    /**
-     * Default string to reverse.
-     */
-    private static final String DEFAULT_STRING = "00001";
-
     /**
      * Name of the CICS program the {@link #reverse(String)} method will LINK to.
      */
@@ -68,17 +55,6 @@ public class MakePoll {
      */
     private static final String OUTPUT_CONTAINER = "OUTPUTDATA";
 
-
-    /**
-     * GET method with no additional input 
-     * 
-     * @return - JAXB bean ReverseResult with input, output and time
-     */
-    @GET
-    public ShowPollResult reverseNoArgs() {
-        return reverse(DEFAULT_STRING);
-    }
-
     
     /**
      * GET method to process input string from URI path 
@@ -89,7 +65,7 @@ public class MakePoll {
      */
     @GET
     @Path("/{text}")
-    public ShowPollResult reverse(@PathParam("text") String inputStr) {
+    public MakePollResult createPoll(@PathParam("text") String inputStr) {
         
         // Variable declarations
         Channel chan;
@@ -211,20 +187,11 @@ public class MakePoll {
         }
 
         // Create the result bean
-        ShowPollResult result = new ShowPollResult();
-
-        // Populate with the original string
-        result.setOriginalText(inputStr);
-
-        // Format the current time to ISO 8601 standards
-        Calendar nowUTC = Calendar.getInstance(TimeZone.getTimeZone("Z"));
-        result.setTime(String.format(ISO8601_FORMAT, nowUTC));
+        MakePollResult result = new MakePollResult();
 
         // Trim the output and store in the result object
-        result.setReverseText(outputStr.trim());
+        result.setResultText(outputStr.trim());
 
-        // Was this truncated?
-        result.setTruncated(outputStr.length() < inputStr.length());
 
         // Return result object
         return result;

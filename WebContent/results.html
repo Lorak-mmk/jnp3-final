@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simplepoll</title>
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.8.2/css/bulma.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/css/all.min.css" integrity="sha512-HK5fgLBL+xu6dm/Ii3z4xhlSUyZgTT9tuc/hSrtw6uzJOvgRr2a9jyxxT1ely+B+xFAmJKVSTbpM/CuL7qxO8w==" crossorigin="anonymous" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.min.js" integrity="sha512-d9xgZrVZpmmQlfonhQUvTR7lMPtO7NkZMkA0ABN3PHCbKA5nqylQ/yWlFAyY6hYgdF1Qh6nYiuADWwKB4C2WSw==" crossorigin="anonymous"></script>
+</head>
+<body>
+    <header class="container">
+        <nav class='navbar' role='navigation'>
+            <div class='navbar-brand'>
+                <a class="navbar-item" href='index.html'>
+                    <span class='title is-1'> SIMPLEPOLL </span>
+                </a>
+                <a role="button" class="navbar-burger burger" aria-label="menu" aria-expanded="false" data-target="navbarBasicExample">
+                    <span aria-hidden="true"></span>
+                    <span aria-hidden="true"></span>
+                    <span aria-hidden="true"></span>
+                </a>
+            </div>
+        </nav>
+    </header>
+    <main class="section container">
+        <div class="columns is-centered">
+            <div class="column is-two-thirds">
+                <div class="box">
+                    <div class="columns">
+                        <div class="column">
+                            <p class="title is-4" id="question_text">Pytanie</p>
+                        </div>
+                    </div>
+
+                    <div id="answers_container">
+                    
+                    </div>
+                </div>
+            </div>
+            <div class="column is-third">
+                <canvas id="chart_area" ></canvas>
+            </div>
+        </div>
+    </main>
+    <!-- Store for elements to copy -->
+    <div style="display:none">
+        <div class="container" id="answer_template">
+            <input type="text" class="input is-static" value="sadasasdas">
+            <progress class="progress is-medium is-info" value="15" max="100">15%</progress>
+        </div>
+    </div>
+    <footer class="section footer container">
+        <div class="has-text-centered content">
+            Autorzy projektu: Krzysztof Rolf i Karol Baryła. Użyto biblioteki <a href="https://bulma.io/">Bulma</a>. Strona powstała jako zadanie zaliczeniowe na przedmiot Języki i narzędzia programowania 3.
+        </div>
+    </footer>
+    <script>
+        window.poll = {};
+
+        example_data = `{ "id": "sdasdasdasdas", "question": "Jakieś pytanie", "answers": [
+            ["Odpowiedź 1ssssssssssssssssssssfsdfsdfsdfsdfsdfyuisgfyugwesfuyawsbedfuibqwaduiavb", 34],
+            ["Odpowiedź 2", 56],
+            ["Odpowiedź 3", 12]
+        ]}`
+
+        function fetch_poll() {
+	    	const queryString = window.location.search;
+	    	const urlParams = new URLSearchParams(queryString);
+	    	if(urlParams.get('id')) {
+	    		qid = urlParams.get('id');
+	    		window.poll.id = qid;
+	    		
+	    		fetch(document.URL.substr(0,document.URL.lastIndexOf('/')) + "/rest/showpoll/" + qid)
+	    			.then(resp => resp.json())
+	    			.then(data => {
+	    				if(data.result) {
+	    					parse_poll(data.result);
+	    				} else {
+	    					alert('Error');
+	    				}
+	    			}).catch(e => alert('error ' + e));
+	    	} else {
+	    		window.location = "index.html";
+	    	}
+    	}
+        
+        function parse_poll(data) {
+	    	window.poll.question = data.substr(0, 98).trim();
+	    	data = data.substr(98);
+	    	window.poll.answers = [];
+	    	while(data.length > 0) {
+	    		window.poll.answers.push([data.substr(0, 90).trim(), parseInt(data.substr(90, 4).trim())]);
+	    		data = data.substr(94);
+	    	}
+	    	
+	    	console.log(window.poll);
+    	
+    		prepare_poll();
+   		}
+
+        
+        function prepare_poll() {
+            // Fetch data from api here
+            var ans_elem = document.getElementById("answer_template");
+
+            sum = 0;
+            for (answer in window.poll.answers) {
+                sum = sum + window.poll.answers[answer][1];
+            }
+
+            document.querySelector("#question_text").innerText = window.poll.question;
+            for (answer in window.poll.answers) {
+                var ans = ans_elem.cloneNode(true);
+                ans.id = "";
+                ans.children[0].value = poll.answers[answer][0];
+                ans.children[1].value = poll.answers[answer][1];
+                ans.children[1].max = sum;
+                console.log(answer);
+                document.getElementById("answers_container").appendChild(ans);
+            }
+            
+            prepare_chart();
+        }
+
+        let colors_palette = [
+            'rgb(255, 99, 132)',
+            'rgb(153, 102, 255)',
+            'rgb(255, 159, 64)',
+            'rgb(255, 205, 86)',
+            'rgb(75, 192, 192)',
+            'rgb(54, 162, 235)',
+            'rgb(201, 203, 207)'];
+
+        var random_color = function() {
+            var r = Math.floor(Math.random() * 255);
+            var g = Math.floor(Math.random() * 255);
+            var b = Math.floor(Math.random() * 255);
+            return "rgb(" + r + "," + g + "," + b + ")";
+         };
+
+        
+        function prepare_chart() {
+            data = [];
+            labels = [];
+            colors = [];
+            for (i in window.poll.answers) {
+                data.push(window.poll.answers[i][1]);
+                labels.push(window.poll.answers[i][0]);
+                colors.push(i < 8 ? colors_palette[i] : randomColor());
+            }
+            console.log(data);
+            console.log(labels);
+            console.log(colors);
+            var config = {
+                type: 'pie',
+                data: {
+                    datasets: [{
+                        data: data,
+                        backgroundColor: colors,
+                        label: 'Wyniki'
+                    }],
+                    fill: false,
+                    labels: labels
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    legend: {
+                        display: false
+                    }
+                }
+		    };
+
+            var ctx = document.getElementById('chart_area').getContext('2d');
+            window.myPie = new Chart(ctx, config);
+        }
+
+
+        fetch_poll();
+    </script>
+    <script>
+		
+		
+	</script>
+        
+</body>
+</html>

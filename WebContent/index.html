@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simplepoll</title>
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.8.2/css/bulma.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/css/all.min.css" integrity="sha512-HK5fgLBL+xu6dm/Ii3z4xhlSUyZgTT9tuc/hSrtw6uzJOvgRr2a9jyxxT1ely+B+xFAmJKVSTbpM/CuL7qxO8w==" crossorigin="anonymous" />
+</head>
+<body>
+    <header class="container">
+        <nav class='navbar' role='navigation'>
+            <div class='navbar-brand'>
+                <a class="navbar-item" href='index.html'>
+                    <span class='title is-1'> SIMPLEPOLL </span>
+                </a>
+                <a role="button" class="navbar-burger burger" aria-label="menu" aria-expanded="false" data-target="navbarBasicExample">
+                    <span aria-hidden="true"></span>
+                    <span aria-hidden="true"></span>
+                    <span aria-hidden="true"></span>
+                </a>
+            </div>
+        </nav>
+    </header>
+    <main class="section container">
+        <div class="container" id="result_wrapper" style="display: none">
+            <div class="columns is-centered">
+                <div class="column is-half">
+                    <div class="message is-link">
+                        <div class="message-header">
+                            <p>Twoja ankieta została pomyślnie utworzona!</p>
+                        </div>
+                        <div class="message-body">
+                            <div class="field is-horizontal has-addons">
+                                <p class="control is-expanded">
+                                <input class="input" type="text" id='result_url' placeholder="url">
+                                </p>
+                                <p class="control">
+                                <a class="button popup" id="copy_button">
+                                    <i class="fas fa-copy"></i>
+                                    <span class="popuptext" id="mypopup">Pomyślnie skopiowano!</span>
+                                </a>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="container" id="form_wrapper">
+            <div class="columns is-centered">
+                <div class="column is-half">
+                    <form onsubmit="return submit_form(event)" id="form_el">
+                        <div class="field is-horizontal">
+                            <div class="field-label is-normal">
+                                <label class="label">Treść pytania</label>
+                            </div>
+                            <div class="field-body">
+                            <div class="field">
+                                <div class="control">
+                                <input class="input" type="text" name="question" placeholder="Podaj treść pytania">
+                                </div>
+                            </div>
+                            </div>
+                        </div>
+                        
+                        <div class="field is-horizontal">
+                            <div class="field-label is-normal">
+                                <label class="label">1.</label>
+                            </div>
+                            <div class="field-body">
+                            <div class="field">
+                                <div class="control">
+                                <input class="input" type="text" name="answer_1" placeholder="Podaj odpowiedź">
+                                </div>
+                            </div>
+                            </div>
+                        </div>
+
+                        <div class="field is-horizontal" id="div_button_add">
+                            <div class="field-label is-normal">
+                                <!-- Left empty for spacing -->
+                            </div>
+                            <div class="field-body">
+                            <div class="field">
+                                <div class="control">
+                                    <button type="button" class="button is-primary" id="button_add">+</button>
+                                </div>
+                            </div>
+                            </div>
+                        </div>
+
+                        <div class="field is-horizontal">
+                            <div class="field-label">
+                            <!-- Left empty for spacing -->
+                            </div>
+                            <div class="field-body">
+                            <div class="field">
+                                <div class="control">
+                                <button class="button is-success" id="button_submit">
+                                    Utwórz ankietę
+                                </button>
+                                </div>
+                            </div>
+                            </div>
+                        </div>
+                    </form>
+                    <!-- Hidden element, used to add new answers -->
+                    <div class="field is-horizontal" id="input_template" style="display: none">
+                        <div class="field-label is-normal">
+                            <label class="label">1.</label>
+                        </div>
+                        <div class="field-body">
+                        <div class="field">
+                            <div class="control">
+                            <input class="input" type="text" name="answer_1" placeholder="Podaj odpowiedź">
+                            </div>
+                        </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+    <footer class="section footer container">
+        <div class="has-text-centered content">
+            Autorzy projektu: Krzysztof Rolf i Karol Baryła. Użyto biblioteki <a href="https://bulma.io/">Bulma</a>. Strona powstała jako zadanie zaliczeniowe na przedmiot Języki i narzędzia programowania 3.
+        </div>
+    </footer>
+    <script>
+        document.getElementById("button_add").onclick = (function(){add_question(2); });
+
+        function submit_form(e) {
+            e.preventDefault();
+
+            var button_add = document.getElementById("button_submit");
+            button_add.classList.add("is-loading");
+            console.log("Submitting form");
+            
+            // Prepare query string
+            let query_str = "";
+            qid = ""
+            for(i = 0; i < 5; i++) {
+            	qid += (~~(Math.random() * 10)).toString()
+            }
+            query_str += qid + ":";
+            
+            const formData = new FormData(document.getElementById('form_el'));
+            query_str += formData.get('question') + ":";
+                        
+            
+            for (var pair of formData.entries()) {
+            	if(pair[0].startsWith("answer_")) {
+            		query_str += pair[1] + ":" + pair[0].substr(7) + ":";
+            		console.log(pair[0] + ': ' + pair[1]);
+            	}
+            }
+            query_str = query_str.slice(0, -1);
+            console.log(query_str);
+            
+            fetch(document.URL.substr(0,document.URL.lastIndexOf('/')) + "/rest/makepoll/" + query_str)
+            	.then(response => response.json())
+            	.then(data => {
+            		if(data.result = formData.get('question') + formData.get('question')) {
+            			button_add.classList.remove("is-loading");
+                        document.getElementById("form_wrapper").style = "display: none";
+                        document.getElementById("result_wrapper").style = "";
+                        document.getElementById("result_url").value = document.URL.substr(0,document.URL.lastIndexOf('/')) + '/vote.html?id=' + qid;
+                        document.getElementById("copy_button").onclick = () => {
+                            var text = document.querySelector("#result_url");
+                            text.select();
+                            document.execCommand("copy");
+                            
+                            var popup = document.getElementById("mypopup");
+                            popup.classList.toggle("show");
+
+                        }
+            		} else {
+            			alert('ERROR: ' + data);
+            		}
+            	}).catch(err => alert(err));
+
+
+            return false;
+        }
+
+        function add_question(i) {
+            // Fix button
+            var button_add = document.getElementById("button_add");
+            button_add.onclick = (function(){add_question(i+1); });
+
+            // Inser question
+            var el = document.getElementById("input_template").cloneNode(true);
+            el.id = "";
+            el.style = "";
+            el.children[0].children[0].innerText = i + ".";
+            el.children[1].children[0].children[0].children[0].name = "answer_" + i;
+            document.getElementById("form_el").insertBefore(el, document.getElementById("div_button_add"));
+        }
+    </script>
+</body>
+</html>
