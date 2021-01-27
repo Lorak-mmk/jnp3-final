@@ -152,7 +152,8 @@
             
             for (var pair of formData.entries()) {
             	if(pair[0].startsWith("answer_")) {
-            		query_str += pair[1] + ":" + pair[0].substr(7) + ":";
+            		// query_str += pair[1] + ":" + pair[0].substr(7) + ":";
+            		query_str += pair[1] + ":" + "0" + ":";
             		console.log(pair[0] + ': ' + pair[1]);
             	}
             }

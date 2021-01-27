@@ -116,7 +116,7 @@
                 ans.id = "";
                 ans.children[0].value = poll.answers[answer][0];
                 ans.children[1].value = poll.answers[answer][1];
-                ans.children[1].max = sum;
+                ans.children[1].max = sum > 0 ? sum : 1;
                 console.log(answer);
                 document.getElementById("answers_container").appendChild(ans);
             }
